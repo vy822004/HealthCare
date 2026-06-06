@@ -17,29 +17,6 @@ const Profile = () => {
 
 
 
-         {/* 🩺 Current Conditions */}
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-xl hover:scale-105 transition" onClick={()=>navigate("/info/current")}>
-          <h2 className="text-xl font-semibold mb-3">Current Conditions</h2>
-          <p className="text-gray-300 text-sm">
-            Monitor your current health conditions and medications.
-          </p>
-        </div>
-
-        {/* 🧾 Medical Reports History */}
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-xl hover:scale-105 transition" onClick={()=>navigate("/info/reports")}>
-          <h2 className="text-xl font-semibold mb-3">Medical Reports History</h2>
-          <p className="text-gray-300 text-sm">
-            View and manage your medical reports and test results.
-          </p>
-        </div>
-
-        {/* 💪 Exercise History */}
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-xl hover:scale-105 transition" onClick={()=>navigate("/info/exercises")}>
-          <h2 className="text-xl font-semibold mb-3">Exercise History</h2>
-          <p className="text-gray-300 text-sm">
-            Track your workouts and fitness progress over time.
-          </p>
-        </div>
 
        
 

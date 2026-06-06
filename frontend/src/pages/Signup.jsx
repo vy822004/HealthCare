@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { NavLink } from 'react-router-dom';
+import loginImage from "../assets/login-illustration.png";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -29,45 +30,100 @@ const Signup = () => {
     }
   };
 
-  return (
-  <div className="min-h-screen flex items-center justify-center">
+return (
+  <div className="min-h-screen flex items-center justify-center p-4">
+    <div
+      className="
+        w-full max-w-6xl
+        flex flex-col md:flex-row
+        overflow-hidden
+        rounded-3xl
+        border border-white/20
+        bg-white/5
+        backdrop-blur-md
+        shadow-[0_8px_32px_rgba(0,0,0,0.35)]
+      "
+    >
+      {/* LEFT SIDE */}
+      <div className="w-full md:w-1/2 bg-white/5 flex items-center justify-center ">
 
-    <div className="flex items-center gap-10">
+  <img
+    src={loginImage}
+    alt="Healthcare"
+    className="w-full h-full object-cover"
+  />
 
-      {/* LEFT TEXT */}
-      <h1 className="text-[80px] font-bold text-white/10">
-        JEEVAN
-      </h1>
+      </div>
 
-      {/* SIGNUP CARD */}
-      <div className="w-[320px] bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 text-center text-white">
-
-        {/* Avatar */}
-        <div className="flex justify-center mb-4">
-          <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center">
-            <span className="text-3xl">👤</span>
+      {/* RIGHT SIDE */}
+      <div
+        className="
+          w-full md:w-1/2
+          bg-white/10
+          backdrop-blur-xl
+          border-l border-white/20
+          text-white
+          flex flex-col
+          justify-center
+          px-8 md:px-10
+          py-8
+        "
+      >
+        <div className="text-center mb-6">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/10 flex items-center justify-center text-3xl">
+            👤
           </div>
+
+          <h2 className="text-3xl md:text-4xl font-bold">
+            Create Account
+          </h2>
+
+          <p className="text-white/70 mt-2">
+            Join Jeevan Care
+          </p>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
             name="name"
-            placeholder="Username"
+            placeholder="Full Name"
             value={name}
             onChange={handleChange}
-            className="w-full px-4 py-2 rounded-full bg-white/20 text-white placeholder-gray-300 outline-none"
+            className="
+              w-full
+              p-3
+              rounded-xl
+              bg-white/10
+              border border-white/20
+              text-white
+              placeholder-white/50
+              outline-none
+              focus:border-blue-400
+              focus:bg-white/15
+              transition
+            "
           />
 
           <input
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="Email Address"
             value={email}
             onChange={handleChange}
-            className="w-full px-4 py-2 rounded-full bg-white/20 text-white placeholder-gray-300 outline-none"
+            className="
+              w-full
+              p-3
+              rounded-xl
+              bg-white/10
+              border border-white/20
+              text-white
+              placeholder-white/50
+              outline-none
+              focus:border-blue-400
+              focus:bg-white/15
+              transition
+            "
           />
 
           <input
@@ -76,37 +132,51 @@ const Signup = () => {
             placeholder="Password"
             value={password}
             onChange={handleChange}
-            className="w-full px-4 py-2 rounded-full bg-white/20 text-white placeholder-gray-300 outline-none"
+            className="
+              w-full
+              p-3
+              rounded-xl
+              bg-white/10
+              border border-white/20
+              text-white
+              placeholder-white/50
+              outline-none
+              focus:border-blue-400
+              focus:bg-white/15
+              transition
+            "
           />
 
           <button
             type="submit"
-            className="bg-blue-700 text-white py-2 rounded-full 
-                       hover:bg-black 
-                       active:scale-95 
-                       transition-all duration-150"
+            className="
+              w-full
+              py-3
+              rounded-full
+              bg-blue-600
+              hover:bg-blue-700
+              text-white
+              font-semibold
+              transition-all
+              duration-300
+              hover:scale-[1.02]
+            "
           >
-            Sign Up
+            CREATE ACCOUNT
           </button>
-
         </form>
 
-        <p className="text-sm text-gray-300 mt-4">
+        <p className="text-center mt-5 text-white/70">
           Already have an account?{" "}
-          <NavLink to="/login" className="underline cursor-pointer">
-            Login
+          <NavLink
+            to="/login"
+            className="text-blue-300 hover:text-blue-200 font-semibold"
+          >
+            Sign In
           </NavLink>
         </p>
-
       </div>
-
-      {/* RIGHT TEXT */}
-      <h1 className="text-[80px] font-bold text-white/10">
-        CARE
-      </h1>
-
     </div>
-
   </div>
 );
 };

@@ -1,72 +1,137 @@
 import React from "react";
 
 const Home = () => {
+  const stats = [
+    {
+      title: "Reports",
+      value: "15",
+      icon: "📄",
+    },
+    {
+      title: "Health Score",
+      value: "87%",
+      icon: "❤️",
+    },
+    {
+      title: "Workout Streak",
+      value: "21 Days",
+      icon: "🏋️",
+    },
+    {
+      title: "AI Chats",
+      value: "48",
+      icon: "🤖",
+    },
+  ];
+
   return (
-    <div className="min-h-screen text-white px-6 py-10">
-
-      {/* 🔥 HERO SECTION */}
-      <div className="text-center mt-10">
-        <h1 className="text-5xl font-bold mb-4">
-          Welcome to <span className="text-blue-400">JEEVANCARE</span> 
+    <div className="min-h-screen text-white p-6">
+      
+      {/* Welcome */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold">
+          Welcome Back 👋
         </h1>
-        <p className="text-gray-300 max-w-xl mx-auto">
-          Your smart healthcare companion. Track health, manage appointments, and stay fit.
+
+        <p className="text-white/60 mt-2">
+          Here's your health overview.
         </p>
-
-        <div className="mt-6 flex justify-center gap-4">
-          <button className="px-6 py-2 bg-blue-600 rounded-full hover:bg-blue-700 transition">
-            Get Started
-          </button>
-          <button className="px-6 py-2 border border-white/30 rounded-full hover:bg-white/10 transition">
-            Learn More
-          </button>
-        </div>
       </div>
 
-      {/* 🔥 FEATURES SECTION */}
-      <div className="mt-20 grid md:grid-cols-3 gap-8">
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        {stats.map((item, index) => (
+          <div
+            key={index}
+            className="
+              bg-white/10
+              backdrop-blur-xl
+              border border-white/20
+              rounded-2xl
+              p-6
+              hover:scale-105
+              transition
+            "
+          >
+            <div className="text-3xl mb-3">
+              {item.icon}
+            </div>
 
-        {/* Card 1 */}
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-xl text-center hover:scale-105 transition">
-          <h2 className="text-xl font-semibold mb-2">Appointments</h2>
-          <p className="text-gray-300 text-sm">
-            Book and manage doctor appointments easily.
-          </p>
-        </div>
+            <h3 className="text-white/70">
+              {item.title}
+            </h3>
 
-        {/* Card 2 */}
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-xl text-center hover:scale-105 transition">
-          <h2 className="text-xl font-semibold mb-2">Workouts</h2>
-          <p className="text-gray-300 text-sm">
-            Personalized workout plans for better health.
-          </p>
-        </div>
-
-        {/* Card 3 */}
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-xl text-center hover:scale-105 transition">
-          <h2 className="text-xl font-semibold mb-2">Reports</h2>
-          <p className="text-gray-300 text-sm">
-            Access your medical reports anytime.
-          </p>
-        </div>
-         {/* Card 4 */}
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-xl text-center hover:scale-105 transition">
-          <h2 className="text-xl font-semibold mb-2">AI Assistant</h2>
-          <p className="text-gray-300 text-sm">
-            Get instant health advice and support.
-          </p>
-        </div>
-
+            <p className="text-3xl font-bold mt-2">
+              {item.value}
+            </p>
+          </div>
+        ))}
       </div>
 
-      {/* 🔥 CTA SECTION */}
-      <div className="mt-20 text-center">
-        <h2 className="text-3xl font-semibold mb-4">
-          Take Control of Your Health Today
+      {/* Analytics */}
+      <div
+        className="
+          bg-white/10
+          backdrop-blur-xl
+          border border-white/20
+          rounded-2xl
+          p-6
+          mb-8
+        "
+      >
+        <h2 className="text-2xl font-semibold mb-4">
+          Health Analytics
         </h2>
-       
+
+        <div className="h-72 flex items-center justify-center text-white/50">
+          Chart Goes Here
+        </div>
       </div>
 
+      {/* Bottom Cards */}
+      <div className="grid md:grid-cols-2 gap-6">
+
+        <div
+          className="
+            bg-white/10
+            backdrop-blur-xl
+            border border-white/20
+            rounded-2xl
+            p-6
+          "
+        >
+          <h2 className="text-xl font-semibold mb-4">
+            Recent Reports
+          </h2>
+
+          <ul className="space-y-3 text-white/70">
+            <li>📄 Blood Test Report</li>
+            <li>📄 ECG Report</li>
+            <li>📄 Cholesterol Report</li>
+          </ul>
+        </div>
+
+        <div
+          className="
+            bg-white/10
+            backdrop-blur-xl
+            border border-white/20
+            rounded-2xl
+            p-6
+          "
+        >
+          <h2 className="text-xl font-semibold mb-4">
+            AI Suggestions
+          </h2>
+
+          <ul className="space-y-3 text-white/70">
+            <li>🥗 Increase protein intake</li>
+            <li>🚶 Walk 30 mins daily</li>
+            <li>💧 Drink more water</li>
+          </ul>
+        </div>
+
+      </div>
     </div>
   );
 };

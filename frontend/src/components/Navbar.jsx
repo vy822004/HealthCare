@@ -10,33 +10,27 @@ const Navbar = () => {
                     bg-white/10 backdrop-blur-lg border-b border-white/20 
                     text-white">
 
-      {/* Logo */}
-      <NavLink to="/home">
-        <h1 className="text-xl font-bold tracking-wide ">
-         <span className="text-blue-400">JEEVANCARE</span>
-        </h1>
-      </NavLink>
-
+     
       {/* Links */}
       <div className="flex gap-6">
 
         <NavLink 
-          to="/home"
+          to="/"
           className={({ isActive }) =>
             isActive
-              ? "text-blue-400 font-semibold"
-              : "hover:text-blue-300 transition"
+              ? "text-blue-400 font-semibold mx-4"
+              : "hover:text-blue-300 transition mx-4"
           }
         >
           Home
-        </NavLink>
+        </NavLink> 
 
         <NavLink 
-          to="/appointments"
+          to="/appointment"
           className={({ isActive }) =>
             isActive
-              ? "text-blue-400 font-semibold"
-              : "hover:text-blue-300 transition"
+              ? "text-blue-400 font-semibold  mx-4"
+              : "hover:text-blue-300 transition  mx-4"
           }
         >
           Appointments
@@ -46,8 +40,8 @@ const Navbar = () => {
           to="/workouts"
           className={({ isActive }) =>
             isActive
-              ? "text-blue-400 font-semibold"
-              : "hover:text-blue-300 transition"
+              ? "text-blue-400 font-semibold mx-4"
+              : "hover:text-blue-300 transition mx-4"
           }
         >
           Workouts
@@ -56,8 +50,8 @@ const Navbar = () => {
           to="/chatbot"
           className={({ isActive }) =>
             isActive
-              ? "text-blue-400 font-semibold"
-              : "hover:text-blue-300 transition"
+              ? "text-blue-400 font-semibold  mx-4"
+              : "hover:text-blue-300 transition mx-4"
           }
         >
           AI Assistant
