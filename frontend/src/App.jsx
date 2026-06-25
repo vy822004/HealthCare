@@ -12,9 +12,11 @@ import Layout from './components/Layout';
 import ChatBot from './pages/ChatBot';
 import AnalyticalPage from './pages/AnalyticalPage';
 import Exercises from './pages/Exercises';
+import DietPlan from './pages/DietPlan';
 import Profile from './pages/Profile';
 import Info from './pages/Info';
 import Appointment from './pages/Appointment';
+
 
 function App() {
   const location = useLocation();
@@ -35,8 +37,10 @@ function App() {
             <Route path="/chatbot" element={<ChatBot />} />
             <Route path="/analytics" element={<AnalyticalPage />} />
             <Route path="/workouts" element={<Exercises />} />
+            <Route path="/diet" element={<DietPlan />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/appointment" element={<Appointment />} />
+            <Route path="/exercises" element={<Exercises />} />
           </Route>
           <Route path="/info/:type" element={<Info />} />
         </Routes>

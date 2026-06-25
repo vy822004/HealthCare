@@ -24,14 +24,10 @@ const Sidebar = () => {
       path: "/reports",
       icon: <FileText size={20} />,
     },
-    {
-      name: "Conditions",
-      path: "/conditions",
-      icon: <HeartPulse size={20} />,
-    },
+    
     {
       name: "Exercise",
-      path: "/exercise",
+      path: "/exercises",
       icon: <Dumbbell size={20} />,
     },
     {
@@ -41,7 +37,7 @@ const Sidebar = () => {
     },
     {
       name: "AI Assistant",
-      path: "/chat",
+      path: "/chatbot",
       icon: <Bot size={20} />,
     },
     {
@@ -49,11 +45,7 @@ const Sidebar = () => {
       path: "/profile",
       icon: <User size={20} />,
     },
-    {
-      name: "Settings",
-      path: "/settings",
-      icon: <Settings size={20} />,
-    },
+   
   ];
 
   return (

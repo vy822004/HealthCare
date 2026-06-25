@@ -1,9 +1,12 @@
+
 import React, { useState } from "react";
 import axios from "axios";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import loginImage from "../assets/login-illustration.png";
 
 const Login = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -24,12 +27,19 @@ const Login = () => {
     try {
       const res = await axios.post(
         "http://localhost:3000/api/auth/login",
-        formData
+        formData,
+        {
+          withCredentials: true,
+        }
       );
 
       console.log(res.data);
+
+      // Redirect to Home page after successful login
+      navigate("/");
     } catch (error) {
       console.error(error);
+      alert(error.response?.data?.message || "Login failed");
     }
   };
 
@@ -48,15 +58,13 @@ const Login = () => {
         "
       >
         {/* LEFT SIDE */}
-        <div className="w-full md:w-1/2 bg-white/5 flex items-center justify-center ">
-       
-         <img
-           src={loginImage}
-           alt="Healthcare"
-           className="w-full h-full object-cover"
-         />
-       
-             </div>
+        <div className="w-full md:w-1/2 bg-white/5 flex items-center justify-center">
+          <img
+            src={loginImage}
+            alt="Healthcare"
+            className="w-full h-full object-cover"
+          />
+        </div>
 
         {/* RIGHT SIDE */}
         <div
@@ -91,6 +99,7 @@ const Login = () => {
               value={email}
               onChange={handleChange}
               placeholder="Email Address"
+              required
               className="
                 w-full
                 p-3
@@ -112,6 +121,7 @@ const Login = () => {
               value={password}
               onChange={handleChange}
               placeholder="Password"
+              required
               className="
                 w-full
                 p-3
@@ -176,3 +186,4 @@ const Login = () => {
 };
 
 export default Login;
+
