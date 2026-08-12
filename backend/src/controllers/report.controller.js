@@ -4,6 +4,7 @@ import { User } from '../models/user.model.js';
 import { Doctor } from '../models/doctor.model.js';
 import { Appointment } from '../models/appointment.model.js';
 import OpenAI from 'openai';
+import '../polyfill.js';
 import { PDFParse } from 'pdf-parse';
 import fs from 'fs';
 import path from 'path';
