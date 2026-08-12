@@ -5,7 +5,7 @@ import { protectRoute } from '../middlewares/auth.midlleware.js';
 
 const router = express.Router();
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: '/tmp/' });
 
 router.post('/upload', protectRoute, upload.single('file'), uploadReport);
 router.post('/prescribe', protectRoute, createPrescription);
