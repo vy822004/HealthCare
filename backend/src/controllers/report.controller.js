@@ -39,8 +39,12 @@ export const uploadReport = async (req, res) => {
         extractedText = result.text;
         await parser.destroy();
       } else if (file.mimetype.startsWith('image/')) {
-        const result = await Tesseract.recognize(file.path, 'eng');
+        const worker = await Tesseract.createWorker('eng', 1, {
+          cachePath: '/tmp',
+        });
+        const result = await worker.recognize(file.path);
         extractedText = result.data.text;
+        await worker.terminate();
       } else {
         if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
         return res.status(400).json({ message: "Unsupported file type. Please upload a PDF or Image." });
