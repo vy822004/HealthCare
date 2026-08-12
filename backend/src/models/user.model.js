@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
         required:true,
         default: 'user'
     },
+    profilePic: { type: String, default: "" },
     isVerified:{ type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now }
 })

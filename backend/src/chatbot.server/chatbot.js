@@ -7,7 +7,9 @@ import { Doctor } from '../models/doctor.model.js';
 import { ChatHistory } from '../models/chatHistory.model.js';
 import { Message } from '../models/messages.model.js';
 import { Workout } from '../models/workout.model.js';
+import { WorkoutHistory } from '../models/workoutHistory.model.js';
 import { DietPlan } from '../models/dietPlan.model.js';
+import { Report } from '../models/report.model.js';
 import { protectRoute } from '../middlewares/auth.midlleware.js';
 
 dotenv.config();
@@ -80,6 +82,48 @@ async function createDietPlan(userId, args) {
             });
         });
 
+        // 🧠 AI mathematical correction: if the AI hallucinated low calories for muscle gain, auto-scale the portions mathematically.
+        if (goal === "Muscle Gain" && totalCalories > 0 && totalCalories < 2800) {
+            const multiplier = 3200 / totalCalories;
+            
+            // We need to carefully scale so protein doesn't exceed 200g.
+            // If totalProtein * multiplier > 220, we use a separate protein multiplier
+            const proteinMultiplier = (totalProtein * multiplier > 220) ? (220 / totalProtein) : multiplier;
+            
+            // If we cap protein, we should add the missing calories into carbs.
+            const extraCarbCalories = (totalProtein * multiplier - totalProtein * proteinMultiplier) * 4;
+            const extraCarbsPerMeal = Math.round((extraCarbCalories / 4) / meals.length);
+
+            meals.forEach(meal => {
+                (meal.items || []).forEach((item, i) => {
+                    item.calories = Math.round(item.calories * multiplier);
+                    item.protein = Math.round(item.protein * proteinMultiplier);
+                    item.fat = Math.round(item.fat * multiplier);
+                    item.carbs = Math.round(item.carbs * multiplier);
+                    
+                    // Distribute the missing calories from protein into carbs on the first item of each meal
+                    if (i === 0 && proteinMultiplier !== multiplier) {
+                        item.carbs += extraCarbsPerMeal;
+                        item.calories += (extraCarbsPerMeal * 4); // Keep calories mathematically sound
+                    }
+
+                    if (!item.name.includes("Portion")) {
+                        item.name = item.name + " (Large Portion)";
+                    }
+                });
+            });
+            // Recalculate totals after scaling
+            totalCalories = 0; totalProtein = 0; totalCarbs = 0; totalFat = 0;
+            meals.forEach(meal => {
+                (meal.items || []).forEach(item => {
+                    totalCalories += item.calories || 0;
+                    totalProtein += item.protein || 0;
+                    totalCarbs += item.carbs || 0;
+                    totalFat += item.fat || 0;
+                });
+            });
+        }
+
         const dietPlan = new DietPlan({
             userId,
             name: name || "AI Diet Plan",
@@ -101,22 +145,6 @@ async function createDietPlan(userId, args) {
 // ─── Tool Definitions ────────────────────────────────────────────────────────
 
 const tools = [
-    {
-        type: "function",
-        function: {
-            name: "get_patient_profile",
-            description: "Get the user's age, weight, height, and existing medical conditions. Call this before creating any plan to personalise it.",
-            parameters: { type: "object", properties: {} }
-        }
-    },
-    {
-        type: "function",
-        function: {
-            name: "get_medical_records",
-            description: "Get the user's recent medical records including vitals, pain levels, and mobility.",
-            parameters: { type: "object", properties: {} }
-        }
-    },
     {
         type: "function",
         function: {
@@ -222,44 +250,78 @@ router.post("/chat", protectRoute, async (req, res) => {
         await Message.create({ chatId: activeChatId, sender: 'user', text: message });
 
         // 2. Build message history
-        const previousMessages = await Message.find({ chatId: activeChatId }).sort({ createdAt: 1 }).limit(12);
+        // Fetch only the 4 most recent messages to stay under Groq's 6000 TPM limit
+        let previousMessages = await Message.find({ chatId: activeChatId }).sort({ createdAt: -1 }).limit(4);
+        previousMessages = previousMessages.reverse();
+
+        // 3. Proactively gather Context-Aware Memory for the AI
+        let contextString = "";
+        try {
+            const patient = await Patient.findOne({ userId });
+            if (patient) {
+                const bmi = (patient.weight && patient.height) ? (patient.weight / ((patient.height/100)**2)).toFixed(1) : "Unknown";
+                contextString += `\n[PATIENT PROFILE]: Age: ${patient.age}, Gender: ${patient.gender}, Weight: ${patient.weight}kg, Height: ${patient.height}cm, BMI: ${bmi}`;
+                if (patient.medicalConditions?.length) {
+                    contextString += `\n[MEDICAL CONDITIONS]: ${patient.medicalConditions.join(", ")}`;
+                }
+
+                // Fetch last 5 recent AI analyzed reports
+                const reports = await Report.find({ patientId: patient._id }).sort({ createdAt: -1 }).limit(5);
+                if (reports.length > 0) {
+                    contextString += `\n[PATIENT MEDICAL RECORDS (REPORTS)]:\n`;
+                    reports.forEach((r, i) => {
+                        contextString += `  - Record ${i+1}: ${r.title} | Status: ${r.recordStatus ? r.recordStatus.toUpperCase() : 'ACTIVE'} | Diagnosis: ${r.diagnosis || 'None'} | Prescriptions: ${r.prescription || 'None'}\n`;
+                    });
+                }
+            }
+
+            // Fetch last 2 recent workouts
+            const recentWorkouts = await WorkoutHistory.find({ userId }).sort({ date: -1 }).limit(2);
+            if (recentWorkouts.length > 0) {
+                contextString += `\n[RECENT WORKOUTS]:\n`;
+                recentWorkouts.forEach((w, i) => {
+                    contextString += `  - Workout ${i+1}: ${w.name} (Duration: ${Math.round(w.duration / 60)} mins)\n`;
+                });
+            }
+        } catch (err) {
+            console.error("Context gathering error:", err);
+        }
 
         const openAiMessages = [
             {
                 role: "system",
-                content: `You are a professional healthcare AI assistant. You can create personalised workout and diet plans and save them to the user's account.
+                content: `You are a professional healthcare and fitness AI assistant. Your primary role is to have a natural, helpful conversation with the user.
 
 ══════════════════════════════════════════════
-PLAN CREATION WORKFLOW — FOLLOW THIS EXACTLY:
+USER'S LIVE HEALTH CONTEXT (BACKGROUND MEMORY):
 ══════════════════════════════════════════════
-
-STEP 1 — GATHER INFO:
-- Call get_patient_profile first. 
-- If profile exists: use it to personalise the plan.
-- If NO profile: ask the user in ONE message for: Age, Weight (kg), Height (cm), Fitness goal (lose weight / build muscle / maintenance), Fitness level (beginner / intermediate / advanced), and any injuries or conditions to avoid.
-
-STEP 2 — SHOW THE PLAN (DO NOT SAVE YET):
-- Generate the full plan and display it clearly to the user in a readable format.
-- For workout plans: list each exercise with sets, reps, and rest time.
-- For diet plans: list each meal (Breakfast / Lunch / Dinner / Snack) with food items and their calories/macros. Show daily totals.
-- End EVERY plan preview with this exact line: "Would you like to modify anything, or shall I save this plan to your account? ✅"
-- ⚠️ DO NOT call create_workout_plan or create_diet_plan at this step.
-
-STEP 3 — HANDLE MODIFICATIONS:
-- If the user asks to change something (e.g. "replace X with Y", "remove the snack", "add more protein"): update the plan and show the full revised plan again.
-- End the revised plan with: "Here is the updated plan. Shall I save it now? ✅"
-- ⚠️ DO NOT call create_workout_plan or create_diet_plan yet.
-
-STEP 4 — SAVE ONLY ON APPROVAL:
-- ONLY call create_workout_plan or create_diet_plan when the user explicitly says something like: "yes", "save it", "looks good", "add it", "perfect", "go ahead".
-- After saving, confirm: "✅ Your plan has been saved! You can view and manage it on the [Workouts / Diet] page."
+${contextString || "No context provided yet. Assume a general user."}
 
 ══════════════════════════════════════════════
-CRITICAL RULES:
+CRITICAL CONVERSATION RULES (MUST OBEY):
 ══════════════════════════════════════════════
-- NEVER diagnose a disease or suggest what illness a user might have.
-- If a user mentions symptoms, call get_available_doctors to find the right specialist.
-- Be friendly, clear, and encouraging.`
+1. BE NATURAL: Do NOT announce that you have retrieved their profile or records. NEVER repeat their height, weight, or age back to them unprompted. Use this knowledge silently.
+2. DO NOT BE PUSHY: If the user just says "hi" or asks a general question, just greet them normally. Do NOT immediately ask for their fitness goals or try to force them to create a workout/diet plan. Wait for them to explicitly ask for a plan.
+3. NO MEDICAL DIAGNOSIS: NEVER diagnose a disease or suggest what illness a user might have. If they mention symptoms, call get_available_doctors.
+
+══════════════════════════════════════════════
+IF (AND ONLY IF) THE USER EXPLICITLY ASKS FOR A WORKOUT OR DIET PLAN, FOLLOW THIS WORKFLOW:
+══════════════════════════════════════════════
+STEP 1: If you don't know their fitness goal (e.g. lose weight, build muscle) or fitness level, ask for it simply.
+STEP 2: Generate the full plan clearly using rich Markdown formatting for excellent readability.
+- Use **bold headers** for each meal or workout day.
+- MUST use **Markdown Tables** for all plans.
+- For diet plans, use this table format for each meal:
+  | Food Item | Calories (kcal) | Protein (g) | Carbs (g) | Fat (g) |
+  |---|---|---|---|---|
+  | Chicken | 150 | 25 | 0 | 5 |
+- For workout plans, use this table format:
+  | Exercise | Sets | Reps/Time | Rest |
+  |---|---|---|---|
+  | Push-ups | 3 | 10-12 | 60s |
+- 🚨 CALORIE & MACRO RULES: For muscle gain, aim for 2800-3500 kcal and max 200g protein. For weight loss, aim for 1800-2200 kcal.
+- End EVERY plan preview with: "Would you like to modify anything, or shall I save this plan to your account? ✅"
+STEP 4: ONLY call create_workout_plan or create_diet_plan when the user explicitly confirms (e.g. "save it", "looks good"). After saving, confirm it's saved.`
             }
         ];
 
@@ -269,7 +331,7 @@ CRITICAL RULES:
 
         // 3. First AI call with tools
         const response = await openai.chat.completions.create({
-            model: "llama-3.1-8b-instant",
+            model: "llama-3.3-70b-versatile",
             messages: openAiMessages,
             tools,
             tool_choice: "auto",
@@ -288,11 +350,7 @@ CRITICAL RULES:
                 try { args = JSON.parse(toolCall.function.arguments || "{}"); } catch (_) {}
 
                 let functionResult = "";
-                if (functionName === "get_patient_profile") {
-                    functionResult = await getPatientProfile(userId);
-                } else if (functionName === "get_medical_records") {
-                    functionResult = await getMedicalRecords(userId);
-                } else if (functionName === "get_available_doctors") {
+                if (functionName === "get_available_doctors") {
                     functionResult = await getAvailableDoctors();
                 } else if (functionName === "create_workout_plan") {
                     functionResult = await createWorkoutPlan(userId, args);
@@ -310,7 +368,7 @@ CRITICAL RULES:
 
             // Final response after tool results
             const finalResponse = await openai.chat.completions.create({
-                model: "llama-3.1-8b-instant",
+                model: "llama-3.3-70b-versatile",
                 messages: openAiMessages,
             });
             finalReplyText = finalResponse.choices[0].message.content;
@@ -345,6 +403,16 @@ router.get("/history/:chatId", protectRoute, async (req, res) => {
         res.json(messages);
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch messages" });
+    }
+});
+
+router.delete("/history/:chatId", protectRoute, async (req, res) => {
+    try {
+        await ChatHistory.findOneAndDelete({ _id: req.params.chatId, userId: req.user.id });
+        await Message.deleteMany({ chatId: req.params.chatId });
+        res.json({ success: true, message: "Chat deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to delete chat" });
     }
 });
 

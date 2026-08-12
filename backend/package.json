@@ -22,7 +22,11 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.3.1",
+    "multer": "^2.2.0",
     "nodemon": "^3.1.14",
-    "openai": "^6.34.0"
+    "openai": "^6.34.0",
+    "pdf-parse": "^2.4.5",
+    "pdfkit": "^0.19.1",
+    "tesseract.js": "^7.0.0"
   }
 }

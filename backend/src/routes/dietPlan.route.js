@@ -1,10 +1,11 @@
 import express from 'express';
 import { saveDietPlan, getDietPlans, deleteDietPlan } from '../controllers/dietPlan.controller.js';
+import { protectRoute } from '../middlewares/auth.midlleware.js';
 
 const router = express.Router();
 
-router.post('/', saveDietPlan);
-router.get('/', getDietPlans);
-router.delete('/:id', deleteDietPlan);
+router.post('/', protectRoute, saveDietPlan);
+router.get('/', protectRoute, getDietPlans);
+router.delete('/:id', protectRoute, deleteDietPlan);
 
 export default router;

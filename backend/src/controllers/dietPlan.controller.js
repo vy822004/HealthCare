@@ -1,12 +1,10 @@
 import { DietPlan } from '../models/dietPlan.model.js';
 
-const DUMMY_USER_ID = "64c9d5e3f1a2b3c4d5e6f7a8";
-
 // POST /api/diet — Save a new diet plan
 export const saveDietPlan = async (req, res) => {
     try {
         const { name, goal, meals } = req.body;
-        const userId = DUMMY_USER_ID;
+        const userId = req.user.id;
 
         if (!meals || meals.length === 0) {
             return res.status(400).json({ error: "A diet plan must have at least one meal." });
@@ -42,7 +40,7 @@ export const saveDietPlan = async (req, res) => {
 // GET /api/diet — Get all saved diet plans for the user
 export const getDietPlans = async (req, res) => {
     try {
-        const userId = DUMMY_USER_ID;
+        const userId = req.user.id;
         const plans = await DietPlan.find({ userId }).sort({ createdAt: -1 });
         res.json(plans);
     } catch (error) {
@@ -54,6 +52,8 @@ export const getDietPlans = async (req, res) => {
 export const deleteDietPlan = async (req, res) => {
     try {
         const { id } = req.params;
+        // Optionally ensure it belongs to the user:
+        // await DietPlan.findOneAndDelete({ _id: id, userId: req.user.id });
         await DietPlan.findByIdAndDelete(id);
         res.json({ message: "Diet plan deleted successfully." });
     } catch (error) {

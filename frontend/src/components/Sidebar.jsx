@@ -11,41 +11,48 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await axios.post("/api/auth/logout");
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      navigate("/login");
+    }
+  };
+
   const navItems = [
     {
-      name: "Dashboard",
+      name: "Overview",
       path: "/",
       icon: <LayoutDashboard size={20} />,
     },
     {
-      name: "Reports",
+      name: "Records",
       path: "/reports",
       icon: <FileText size={20} />,
     },
-    
     {
-      name: "Exercise",
+      name: "Fitness",
       path: "/exercises",
       icon: <Dumbbell size={20} />,
     },
     {
-      name: "Diet Plan",
+      name: "Nutrition",
       path: "/diet",
       icon: <Salad size={20} />,
     },
     {
-      name: "AI Assistant",
-      path: "/chatbot",
-      icon: <Bot size={20} />,
-    },
-    {
-      name: "Profile",
+      name: "Settings",
       path: "/profile",
-      icon: <User size={20} />,
+      icon: <Settings size={20} />,
     },
-   
   ];
 
   return (
@@ -102,6 +109,7 @@ const Sidebar = () => {
       {/* Logout */}
       <div className="p-4 border-t border-white/20">
         <button
+          onClick={handleLogout}
           className="
             w-full
             flex

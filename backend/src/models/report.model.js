@@ -10,7 +10,7 @@ const reportSchema = new mongoose.Schema({
     assignedDoctor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Doctor',
-        required: true
+        required: false
     },
     title: {
         type: String,
@@ -30,6 +30,11 @@ const reportSchema = new mongoose.Schema({
         enum: ['draft','final'],
         default: 'final'
     },
+    recordStatus: {
+        type: String,
+        enum: ['active', 'fixed'],
+        default: 'active'
+    }
 },{
     timestamps:true
 })

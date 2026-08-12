@@ -90,9 +90,8 @@ const DietPlan = () => {
       setPlanName("My Diet Plan");
       fetchSavedPlans();
       setActiveTab("saved");
-    } catch (err) {
-      alert("❌ Failed to save diet plan.");
-      console.error(err);
+    } catch {
+      alert("Failed to create diet plan");
     } finally {
       setSaving(false);
     }
@@ -103,7 +102,7 @@ const DietPlan = () => {
     try {
       await axios.delete(`/api/diet/${id}`);
       setSavedPlans(savedPlans.filter((p) => p._id !== id));
-    } catch (err) {
+    } catch {
       alert("Failed to delete.");
     }
   };
@@ -277,51 +276,80 @@ const DietPlan = () => {
             {/* ── Saved Plans Tab ── */}
             {activeTab === "saved" && (
               <div>
-                <h2 className="text-xl font-bold mb-4">Saved Plans</h2>
+                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                  <span className="bg-green-500/20 text-green-400 p-1.5 rounded-lg">📋</span>
+                  Saved Plans
+                </h2>
                 {savedPlans.length === 0 ? (
-                  <p className="text-slate-500 text-sm">No saved plans yet. Build one!</p>
+                  <div className="text-center py-10 bg-slate-800/30 rounded-2xl border border-dashed border-slate-700">
+                    <p className="text-slate-400 font-medium">No saved plans yet.</p>
+                    <p className="text-slate-500 text-sm mt-1">Build one or ask the AI to generate it!</p>
+                  </div>
                 ) : (
-                  <div className="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
+                  <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-2 custom-scrollbar">
                     {savedPlans.map((plan) => (
-                      <div key={plan._id} className="bg-slate-800 rounded-xl overflow-hidden">
+                      <div key={plan._id} className="bg-slate-800/50 backdrop-blur-md border border-slate-700/50 rounded-2xl overflow-hidden hover:border-green-500/30 transition-all duration-300 shadow-lg">
                         <div
-                          className="flex justify-between items-center p-4 cursor-pointer hover:bg-slate-700 transition"
+                          className="flex justify-between items-center p-5 cursor-pointer hover:bg-slate-700/30 transition group"
                           onClick={() => setExpandedPlan(expandedPlan === plan._id ? null : plan._id)}
                         >
                           <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="font-semibold text-sm">{plan.name}</p>
-                              <span className={`text-xs px-2 py-0.5 rounded-full text-white ${goalColors[plan.goal]}`}>{plan.goal}</span>
+                            <div className="flex items-center gap-3 mb-2">
+                              <p className="font-bold text-lg text-white group-hover:text-green-400 transition-colors">{plan.name}</p>
+                              <span className={`text-xs px-2.5 py-1 rounded-full font-medium tracking-wide shadow-sm text-white ${goalColors[plan.goal] || 'bg-slate-600'}`}>{plan.goal}</span>
                             </div>
-                            <p className="text-xs text-slate-400">
-                              🔥 {plan.totalCalories} kcal · {new Date(plan.createdAt).toLocaleDateString()}
+                            <p className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                              <span className="text-orange-400 font-semibold">🔥 {plan.totalCalories} kcal</span>
+                              <span className="text-slate-600">•</span>
+                              <span>{new Date(plan.createdAt).toLocaleDateString()}</span>
                             </p>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <button onClick={(e) => { e.stopPropagation(); deletePlan(plan._id); }} className="text-red-400 hover:text-red-500 text-sm">🗑</button>
-                            <span className="text-slate-400 text-xs">{expandedPlan === plan._id ? "▲" : "▼"}</span>
+                          <div className="flex items-center gap-4">
+                            <button onClick={(e) => { e.stopPropagation(); deletePlan(plan._id); }} className="p-2 bg-slate-700/50 hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded-full transition-colors">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                            <span className={`text-slate-500 transition-transform duration-300 ${expandedPlan === plan._id ? "rotate-180" : ""}`}>
+                              ▼
+                            </span>
                           </div>
                         </div>
 
                         {expandedPlan === plan._id && (
-                          <div className="px-4 pb-4 border-t border-slate-700 pt-3 space-y-3">
+                          <div className="px-5 pb-5 pt-2 border-t border-slate-700/50 bg-slate-800/20">
                             {/* Macro bar */}
-                            <div className="grid grid-cols-3 gap-2 text-xs text-center">
-                              <div><p className={`font-bold ${macroColor.protein}`}>{plan.totalProtein}g</p><p className="text-slate-500">protein</p></div>
-                              <div><p className={`font-bold ${macroColor.carbs}`}>{plan.totalCarbs}g</p><p className="text-slate-500">carbs</p></div>
-                              <div><p className={`font-bold ${macroColor.fat}`}>{plan.totalFat}g</p><p className="text-slate-500">fat</p></div>
-                            </div>
-                            {plan.meals.map((meal) => (
-                              <div key={meal.mealType}>
-                                <p className="text-xs font-semibold text-green-400 mb-1">{meal.mealType}</p>
-                                {meal.items.map((item, i) => (
-                                  <div key={i} className="flex justify-between text-xs text-slate-300 py-0.5">
-                                    <span>{item.name}</span>
-                                    <span className={macroColor.calories}>{item.calories} kcal</span>
-                                  </div>
-                                ))}
+                            <div className="grid grid-cols-3 gap-3 my-4">
+                              <div className="bg-blue-900/20 border border-blue-500/20 rounded-xl p-3 text-center">
+                                <p className="text-xl font-bold text-blue-400">{plan.totalProtein}g</p>
+                                <p className="text-xs font-medium text-blue-400/60 uppercase tracking-wider mt-1">Protein</p>
                               </div>
-                            ))}
+                              <div className="bg-yellow-900/20 border border-yellow-500/20 rounded-xl p-3 text-center">
+                                <p className="text-xl font-bold text-yellow-400">{plan.totalCarbs}g</p>
+                                <p className="text-xs font-medium text-yellow-400/60 uppercase tracking-wider mt-1">Carbs</p>
+                              </div>
+                              <div className="bg-pink-900/20 border border-pink-500/20 rounded-xl p-3 text-center">
+                                <p className="text-xl font-bold text-pink-400">{plan.totalFat}g</p>
+                                <p className="text-xs font-medium text-pink-400/60 uppercase tracking-wider mt-1">Fat</p>
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-4 mt-6">
+                              {plan.meals.map((meal) => (
+                                <div key={meal.mealType} className="bg-slate-900/50 rounded-xl p-4 border border-slate-700/30">
+                                  <p className="text-sm font-bold text-green-400 mb-3 border-b border-green-500/20 pb-2 flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                                    {meal.mealType}
+                                  </p>
+                                  <div className="space-y-2">
+                                    {meal.items.map((item, i) => (
+                                      <div key={i} className="flex justify-between items-center text-sm hover:bg-slate-800/50 p-1.5 -mx-1.5 rounded-lg transition-colors">
+                                        <span className="text-slate-300 font-medium">{item.name}</span>
+                                        <span className="text-orange-300/90 font-semibold bg-orange-500/10 px-2.5 py-1 rounded text-xs">{item.calories} kcal</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>

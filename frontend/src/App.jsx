@@ -6,23 +6,20 @@ import Home from './pages/Home';
 
 
 import Navbar from './components/Navbar';
-
 import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import ChatBot from './pages/ChatBot';
-import AnalyticalPage from './pages/AnalyticalPage';
+
 import Exercises from './pages/Exercises';
 import DietPlan from './pages/DietPlan';
 import Profile from './pages/Profile';
+import Reports from './pages/Reports';
 import Info from './pages/Info';
 import Appointment from './pages/Appointment';
-
+import DoctorDashboard from './pages/DoctorDashboard';
 
 function App() {
-  const location = useLocation();
-     const hideLayoutRoutes = ["/login", "/signup"];
-
-  const shouldHideLayout = hideLayoutRoutes.includes(location.pathname);
   return (
     <div className="min-h-screen flex flex-col">
 
@@ -32,17 +29,23 @@ function App() {
         <Routes>
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
-          <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
+
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
             <Route path="/chatbot" element={<ChatBot />} />
-            <Route path="/analytics" element={<AnalyticalPage />} />
-            <Route path="/workouts" element={<Exercises />} />
-            <Route path="/diet" element={<DietPlan />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/appointment" element={<Appointment />} />
-            <Route path="/exercises" element={<Exercises />} />
+            <Route element={<Layout />}>
+              <Route path="/" element={<Home />} />
+
+              <Route path="/workouts" element={<Exercises />} />
+              <Route path="/diet" element={<DietPlan />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/appointment" element={<Appointment />} />
+              <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+              <Route path="/exercises" element={<Exercises />} />
+            </Route>
+            <Route path="/info/:type" element={<Info />} />
           </Route>
-          <Route path="/info/:type" element={<Info />} />
         </Routes>
       </div>
 

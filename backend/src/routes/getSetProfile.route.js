@@ -6,11 +6,7 @@ import express from 'express';
 
 const router = express.Router();
 
-// get profile
-
-router.get('/profile', protectRoute, getProfile);
-
-/// set profile
-router.post('/setprofile', protectRoute, setProfile);
+router.get('/', protectRoute, getProfile);
+router.put('/', protectRoute, setProfile);
 
 export default router;
