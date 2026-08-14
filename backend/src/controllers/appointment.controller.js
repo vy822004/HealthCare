@@ -18,12 +18,12 @@ export const getDoctors = async (req, res) => {
                 dummyUsers = await User.insertMany([
                     { name: "Dr. Sanjay Gupta", email: "sanjay@hospital.com", password: "password", role: "doctor" },
                     { name: "Dr. Priya Sharma", email: "priya@hospital.com", password: "password", role: "doctor" },
-                    { name: "Dr. Rahul Verma", email: "rahul@hospital.com", password: "password", role: "doctor" },
+                    { name: "Dr. Sneha Reddy", email: "rahul@hospital.com", password: "password", role: "doctor" },
                     { name: "Dr. Neha Patel", email: "neha@hospital.com", password: "password", role: "doctor" },
                     { name: "Dr. Vikram Singh", email: "vikram@hospital.com", password: "password", role: "doctor" },
-                    { name: "Dr. Aarti Desai", email: "aarti@hospital.com", password: "password", role: "doctor" },
-                    { name: "Dr. Karan Mehta", email: "karan@hospital.com", password: "password", role: "doctor" },
-                    { name: "Dr. Sneha Reddy", email: "sneha@hospital.com", password: "password", role: "doctor" }
+                    { name: "Dr. Karan Mehta", email: "aarti@hospital.com", password: "password", role: "doctor" },
+                    { name: "Dr. Aarti Desai", email: "karan@hospital.com", password: "password", role: "doctor" },
+                    { name: "Dr. Rahul Sharma", email: "sneha@hospital.com", password: "password", role: "doctor" }
                 ]);
             }
 
