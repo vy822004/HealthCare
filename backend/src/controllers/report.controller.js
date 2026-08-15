@@ -5,7 +5,7 @@ import { Doctor } from '../models/doctor.model.js';
 import { Appointment } from '../models/appointment.model.js';
 import OpenAI from 'openai';
 import '../polyfill.js';
-import { PDFParse } from 'pdf-parse';
+import pdfParse from 'pdf-parse';
 import fs from 'fs';
 import path from 'path';
 import Tesseract from 'tesseract.js';
@@ -40,10 +40,8 @@ export const uploadReport = async (req, res) => {
     try {
       if (file.mimetype === 'application/pdf') {
         const dataBuffer = fs.readFileSync(file.path);
-        const parser = new PDFParse({ data: dataBuffer });
-        const result = await parser.getText();
+        const result = await pdfParse(dataBuffer);
         extractedText = result.text;
-        await parser.destroy();
       } else if (file.mimetype.startsWith('image/')) {
         const worker = await Tesseract.createWorker('eng', 1, {
           cachePath: '/tmp',
