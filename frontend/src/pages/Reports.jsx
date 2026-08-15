@@ -277,7 +277,7 @@ export default function Reports() {
                 {report.fileUrl && (
                   <div className="mt-4 pt-4 border-t border-white/5">
                     <a 
-                      href={report.fileUrl} 
+                      href={report.fileUrl.replace(/\.pdf$/i, '.jpg')} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors"

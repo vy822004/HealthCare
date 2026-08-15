@@ -275,7 +275,7 @@ const DoctorDashboard = () => {
                                             </div>
                                             {report.fileUrl && (
                                                 <a 
-                                                    href={report.fileUrl} 
+                                                    href={report.fileUrl.replace(/\.pdf$/i, '.jpg')} 
                                                     target="_blank" 
                                                     rel="noopener noreferrer"
                                                     className="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg flex items-center gap-1 transition"

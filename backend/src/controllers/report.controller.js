@@ -12,10 +12,16 @@ import Tesseract from 'tesseract.js';
 import cloudinary from '../libs/cloudinary.js';
 import PDFDocument from 'pdfkit';
 // Initialize OpenAI using the environment variable
-const openai = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY,
-  baseURL: "https://api.groq.com/openai/v1"
-});
+let openai;
+function getOpenAIClient() {
+  if (!openai) {
+    openai = new OpenAI({
+      apiKey: process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY,
+      baseURL: "https://api.groq.com/openai/v1"
+    });
+  }
+  return openai;
+}
 
 export const uploadReport = async (req, res) => {
   try {
@@ -77,7 +83,7 @@ export const uploadReport = async (req, res) => {
       """
     `;
 
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAIClient().chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [{ role: "user", content: prompt }],
       temperature: 0,
@@ -125,7 +131,9 @@ export const uploadReport = async (req, res) => {
         resource_type: "auto",
         folder: "medical_reports"
       });
-      cloudinaryUrl = cloudinaryResult.secure_url;
+      // Cloudinary restricts PDFs by default on many accounts.
+      // Bypass this by asking Cloudinary to deliver it as a JPG.
+      cloudinaryUrl = cloudinaryResult.secure_url.replace(/\.pdf$/, '.jpg');
     } catch (cloudErr) {
       console.error("Cloudinary Upload Error:", cloudErr);
       if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
